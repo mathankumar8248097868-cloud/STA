@@ -1,0 +1,326 @@
+1.register test
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class RegisterTest {
+
+    public static void main(String[] args) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        try {
+
+            // Open Register Page
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/register.html");
+
+            // Enter Name
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name")))
+                    .sendKeys("Mathan Kumar");
+
+            // Enter Email
+            driver.findElement(By.id("email"))
+                    .sendKeys("mathan@gmail.com");
+
+            // Enter Password
+            driver.findElement(By.id("password"))
+                    .sendKeys("1234");
+
+            // Confirm Password
+            driver.findElement(By.id("confirm"))
+                    .sendKeys("1234");
+
+            // Click Register Button
+            driver.findElement(By.tagName("button")).click();
+
+            // Wait for redirect to login.html
+            wait.until(ExpectedConditions.urlContains("login.html"));
+
+            if (driver.getCurrentUrl().contains("login.html")) {
+                System.out.println("✅ REGISTER SUCCESSFUL");
+            } else {
+                System.out.println("❌ REGISTER FAILED");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ REGISTER ERROR");
+            e.printStackTrace();
+        }
+
+    }
+}
+----------------------------------------
+2.login
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class LoginTest {
+
+    public static void main(String[] args) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        try {
+
+            // =========================
+            // STEP 1: OPEN REGISTER PAGE
+            // =========================
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/register.html");
+
+            // Fill Register Form
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name")))
+                    .sendKeys("Mathan Kumar");
+
+            driver.findElement(By.id("email"))
+                    .sendKeys("mathan@gmail.com");
+
+            driver.findElement(By.id("password"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.id("confirm"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.tagName("button")).click();
+
+            // Wait for redirect to login.html
+            wait.until(ExpectedConditions.urlContains("login.html"));
+
+            System.out.println("✅ REGISTER SUCCESSFUL");
+
+            // =========================
+            // STEP 2: LOGIN
+            // =========================
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")))
+                    .sendKeys("mathan@gmail.com");
+
+            driver.findElement(By.id("password"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.tagName("button")).click();
+
+            // Wait for redirect to products.html
+            wait.until(ExpectedConditions.urlContains("products.html"));
+
+            if (driver.getCurrentUrl().contains("products.html")) {
+                System.out.println("✅ LOGIN SUCCESSFUL");
+            } else {
+                System.out.println("❌ LOGIN FAILED");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ TEST ERROR");
+            e.printStackTrace();
+        }
+
+    }
+}
+------------------------------------------------
+3.cart
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class CartTest {
+
+    public static void main(String[] args) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+
+            // STEP 1: REGISTER
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/register.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name")))
+                    .sendKeys("Mathan Kumar");
+
+            driver.findElement(By.id("email"))
+                    .sendKeys("mathan@gmail.com");
+
+            driver.findElement(By.id("password"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.id("confirm"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("login.html"));
+            System.out.println("REGISTER SUCCESSFUL");
+
+
+            // STEP 2: LOGIN
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")))
+                    .sendKeys("mathan@gmail.com");
+
+            driver.findElement(By.id("password"))
+                    .sendKeys("1234");
+
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("products.html"));
+            System.out.println("LOGIN SUCCESSFUL");
+
+
+            // STEP 3: ADD PRODUCT
+            wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("(//button[contains(text(),'Add')])[1]"))).click();
+
+            System.out.println("PRODUCT ADDED TO CART");
+
+
+            // STEP 4: OPEN CART PAGE
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/cart.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cartTable")));
+
+            if (driver.getPageSource().contains("Shopping Cart")) {
+                System.out.println("ADD TO CART SUCCESSFUL");
+            } else {
+                System.out.println("ADD TO CART FAILED");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+--------------------------------------------------
+4.payment test
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class PaymentTest {
+
+    public static void main(String[] args) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        try {
+
+            // ================= REGISTER =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/register.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name")))
+                    .sendKeys("Mathan Kumar");
+
+            driver.findElement(By.id("email")).sendKeys("mathan@gmail.com");
+            driver.findElement(By.id("password")).sendKeys("1234");
+            driver.findElement(By.id("confirm")).sendKeys("1234");
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("login.html"));
+            System.out.println("REGISTER SUCCESSFUL");
+
+
+            // ================= LOGIN =================
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")))
+                    .sendKeys("mathan@gmail.com");
+
+            driver.findElement(By.id("password")).sendKeys("1234");
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("products.html"));
+            System.out.println("LOGIN SUCCESSFUL");
+
+
+            // ================= ADD PRODUCT =================
+            wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("(//button[contains(text(),'Add')])[1]"))).click();
+
+            // 🔥 HANDLE ALERT HERE
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert alert = driver.switchTo().alert();
+            System.out.println("ALERT MESSAGE: " + alert.getText());
+            alert.accept();
+
+            System.out.println("PRODUCT ADDED TO CART");
+
+
+            // ================= OPEN CART =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/staweb/cart.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cartTable")));
+            System.out.println("CART PAGE OPENED");
+
+
+            // ================= CHECKOUT =================
+            wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[text()='Proceed to Checkout']"))).click();
+
+            wait.until(ExpectedConditions.urlContains("checkout.html"));
+            System.out.println("CHECKOUT PAGE OPENED");
+
+
+            // ================= PAYMENT =================
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card")))
+                    .sendKeys("123");
+
+            driver.findElement(By.id("cvv")).sendKeys("123");
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("index.html"));
+
+            System.out.println("PAYMENT SUCCESSFUL");
+
+        } catch (Exception e) {
+            System.out.println("TEST ERROR");
+            e.printStackTrace();
+        }
+
+    }
+}
+
+
+
+
+
