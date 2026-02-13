@@ -1,0 +1,91 @@
+1.java 
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+
+public class ShopEasywebtest{
+
+    public static void main(String[] args) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        try {
+            driver.manage().window().maximize();
+
+            // ================= REGISTER =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/ShopEasy/register.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("regName"))).sendKeys("Test User");
+            driver.findElement(By.id("regEmail")).sendKeys("testuser@gmail.com");
+            driver.findElement(By.id("regPass")).sendKeys("1234");
+            driver.findElement(By.tagName("button")).click();
+
+            // Handle registration alert
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert regAlert = driver.switchTo().alert();
+            System.out.println("⚡ Registration Alert: " + regAlert.getText());
+            regAlert.accept();
+
+            // ================= LOGIN =================
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginEmail"))).sendKeys("testuser@gmail.com");
+            driver.findElement(By.id("loginPass")).sendKeys("1234");
+            driver.findElement(By.tagName("button")).click();
+
+            // Handle login alert
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert loginAlert = driver.switchTo().alert();
+            System.out.println("⚡ Login Alert: " + loginAlert.getText());
+            loginAlert.accept();
+
+            // Wait for index page
+            wait.until(ExpectedConditions.urlContains("index.html"));
+            System.out.println("✅ Login Successful, Index Page Loaded");
+
+            // ================= BROWSE PRODUCTS =================
+            List<WebElement> products = driver.findElements(By.cssSelector(".product"));
+            System.out.println("✅ Products Displayed: " + products.size());
+
+            // ================= ADD FIRST PRODUCT TO CART =================
+            WebElement firstBuyButton = driver.findElement(By.xpath("(//button[contains(text(),'Buy')])[2]"));
+            firstBuyButton.click();
+
+            // Handle buy alert
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert buyAlert = driver.switchTo().alert();
+            System.out.println("⚡ Buy Alert: " + buyAlert.getText());
+            buyAlert.accept();
+            System.out.println("✅ Product Added to Cart");
+
+            // ================= VIEW ORDERS =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/ShopEasy/orders.html");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("orderList")));
+            System.out.println("✅ Orders Page Loaded");
+
+            // ================= VIEW BILL =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/ShopEasy/sbill.html");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("billContent")));
+            System.out.println("✅ Bill Page Loaded");
+
+            System.out.println("🏁 Test Completed — Browser ends on Bill page");
+
+        } catch (Exception e) {
+            System.out.println("❌ TEST FAILED");
+            e.printStackTrace();
+        }
+
+        // intentionally no driver.quit() so browser stays open
+    }
+}
