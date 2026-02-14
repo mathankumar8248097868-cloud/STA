@@ -1,0 +1,102 @@
+1.java 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RegisterLoginTest {
+
+    @Test(dataProvider = "userData")
+    public void testRegisterAndLogin(String name, String email, String password, String confirm) {
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        try {
+            driver.manage().window().maximize();
+
+            // ================= REGISTER =================
+            driver.get("https://mathankumar8248097868-cloud.github.io/ex3web/register.html");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name"))).sendKeys(name);
+            driver.findElement(By.id("email")).sendKeys(email);
+            driver.findElement(By.id("password")).sendKeys(password);
+            driver.findElement(By.id("confirm")).sendKeys(confirm);
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("login.html"));
+            System.out.println("✅ REGISTER SUCCESSFUL: " + email);
+
+            // ================= LOGIN =================
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email"))).sendKeys(email);
+            driver.findElement(By.id("password")).sendKeys(password);
+            driver.findElement(By.tagName("button")).click();
+
+            wait.until(ExpectedConditions.urlContains("products.html"));
+            System.out.println("✅ LOGIN SUCCESSFUL: " + email);
+
+        } catch (Exception e) {
+            System.out.println("❌ TEST FAILED: " + email);
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+
+    @DataProvider(name = "userData")
+    public Object[][] readData() {
+        List<Object[]> testData = new ArrayList<>();
+        String csvFile = "F:\\SeleniumProject\\testdata.csv"; // Update with your CSV path
+
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            br.readLine(); // skip header
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                testData.add(new Object[]{data[0], data[1], data[2], data[3]});
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return testData.toArray(new Object[0][0]);
+    }
+}
+----------------------------------------------------------------
+2.testng.xml
+
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="RegisterLoginSuite">
+
+    <test name="RegisterLoginTests">
+        <classes>
+            <class name="RegisterLoginTest"/>
+        </classes>
+    </test>
+
+</suite>
+--------------------------------------------------------
+3.testdata.csv
+
+Name,Email,Password,ConfirmPassword
+Mathan Kumar,mathan@gmail.com,mathan@6978,mathan@6978
+Test User,test@gmail.com,mathan@6978,mathan@6978
+Admin,admin@gmail.com,mathan@6978,mathan@6978
+
+
