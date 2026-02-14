@@ -1,3 +1,7 @@
+Group Id: org.example
+Artifact Id: EcommerceTestNG
+
+
 1.java 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
