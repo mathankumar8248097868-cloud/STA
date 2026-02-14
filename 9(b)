@@ -1,0 +1,296 @@
+Step-by-Step Guide to Run Your POM Project in Eclipse
+1️⃣ Install Required Tools
+
+Java JDK (version 11 or higher) installed.
+
+Eclipse IDE for Java Developers (latest version).
+
+Chrome Browser installed (for ChromeDriver).
+
+2️⃣ Create a Maven Project in Eclipse
+
+Open Eclipse → File → New → Maven Project
+
+Check Create a simple project (skip archetype selection) → Next
+
+Enter:
+
+Group Id: com.example
+
+Artifact Id: EcommerceAutomation
+
+Click Finish → Maven project is created.
+----------------------------------------------------------------
+1.pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>EcommerceTestNG</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <!-- Java Version -->
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+
+        <!-- Selenium -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.18.1</version>
+        </dependency>
+
+        <!-- TestNG -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- WebDriverManager (auto chromedriver) -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.8.0</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
+------------------------------------------------------------
+
+4️⃣ Create Package Structure
+
+In src/main/java → create package: pages
+In src/test/java → create package: tests
+
+Folder structure in Eclipse should be like this:
+
+EcommerceAutomation
+├─ src/main/java/pages
+│   ├─ RegisterPage.java
+│   ├─ LoginPage.java
+│   ├─ ProductsPage.java
+│   └─ CheckoutPage.java
+├─ src/test/java/tests
+│   └─ EcommerceTest.java
+├─ pom.xml
+└─ testng.xml
+-----------------------------
+2.RegisterPage.java
+
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class RegisterPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public RegisterPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    }
+
+    public void open() {
+        driver.get("https://mathankumar8248097868-cloud.github.io/ex3web/register.html");
+    }
+
+    public void register(String name, String email, String password) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name"))).sendKeys(name);
+        driver.findElement(By.id("email")).sendKeys(email);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.id("confirm")).sendKeys(password);
+        driver.findElement(By.tagName("button")).click();
+        wait.until(ExpectedConditions.urlContains("login.html"));
+    }
+}
+---------------------------------
+3.LoginPage.java
+
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class LoginPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    }
+
+    public void login(String email, String password) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email"))).sendKeys(email);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.tagName("button")).click();
+        wait.until(ExpectedConditions.urlContains("products.html"));
+    }
+}
+---------------------------
+
+4.ProductsPage.java
+
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import java.util.List;
+
+public class ProductsPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public ProductsPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    }
+
+    public WebElement searchAndGetProduct(String productName) throws Exception {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("searchInput"))).sendKeys(productName);
+        driver.findElement(By.className("search-btn")).click();
+        Thread.sleep(1000); // allow filter
+
+        List<WebElement> products = driver.findElements(By.className("card"));
+        for (WebElement product : products) {
+            if (product.isDisplayed()) {
+                String name = product.findElement(By.tagName("h3")).getText();
+                if (name.equalsIgnoreCase(productName)) return product;
+            }
+        }
+        throw new Exception("Product not found: " + productName);
+    }
+
+    public void addToCart(WebElement product) {
+        WebElement addBtn = product.findElement(By.className("add-btn"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", addBtn);
+        wait.until(ExpectedConditions.alertIsPresent());
+        driver.switchTo().alert().accept();
+        wait.until(ExpectedConditions.urlContains("cart.html"));
+    }
+}
+---------------------------------------------
+5.CheckoutPage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class CheckoutPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public CheckoutPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    }
+
+    public void proceedToCheckout() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'Proceed')]"))).click();
+        wait.until(ExpectedConditions.urlContains("checkout.html"));
+    }
+
+    public void makePayment(String card, String cvv) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card"))).sendKeys(card);
+        driver.findElement(By.id("cvv")).sendKeys(cvv);
+        driver.findElement(By.tagName("button")).click();
+        wait.until(ExpectedConditions.urlContains("index.html"));
+    }
+}
+------------------------------------
+6.EcommerceTest.java
+
+package tests;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import pages.*;
+
+public class EcommerceTest {
+    private WebDriver driver;
+    private RegisterPage registerPage;
+    private LoginPage loginPage;
+    private ProductsPage productsPage;
+    private CheckoutPage checkoutPage;
+
+    @BeforeClass
+    public void setUp() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+
+        registerPage = new RegisterPage(driver);
+        loginPage = new LoginPage(driver);
+        productsPage = new ProductsPage(driver);
+        checkoutPage = new CheckoutPage(driver);
+    }
+
+    @Test
+    public void testEcommerceFlow() throws Exception {
+        registerPage.open();
+        registerPage.register("Mathan Kumar", "mathan@gmail.com", "mathan@6978");
+        System.out.println("✅ REGISTER SUCCESSFUL");
+
+        loginPage.login("mathan@gmail.com", "mathan@6978");
+        System.out.println("✅ LOGIN SUCCESSFUL");
+
+        WebElement product = productsPage.searchAndGetProduct("Mobile");
+        productsPage.addToCart(product);
+        System.out.println("✅ PRODUCT ADDED TO CART");
+
+        checkoutPage.proceedToCheckout();
+        checkoutPage.makePayment("123", "123");
+        System.out.println("✅ PAYMENT SUCCESSFUL");
+        System.out.println("🏁 TEST COMPLETED SUCCESSFULLY");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        driver.quit();
+    }
+}
+--------------------------------------------------
+7.testng.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="EcommerceSuite">
+    <test name="EcommerceTest">
+        <classes>
+            <class name="tests.EcommerceTest"/>
+        </classes>
+    </test>
+</suite>
+
+
